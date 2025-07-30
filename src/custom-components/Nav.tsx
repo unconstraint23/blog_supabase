@@ -19,7 +19,7 @@ export default function Nav() {
           </div>
           <div className="w-2/6 flex justify-between items-center">
             <Search className="w-3/4" />
-          <Button className="w-20">
+          <Button className="w-20 bg-primary text-white hover:bg-primary/20">
             登录
           </Button>
           </div>
