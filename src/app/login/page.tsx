@@ -1,3 +1,4 @@
+"use client"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -10,18 +11,19 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useState } from "react"
 
 export default function LoginCard() {
+  const [title, setTitle] = useState("登录")
+  const [isLogin, setIsLogin] = useState(true)
   return (
     <Card className="w-full max-w-sm mx-auto mt-10">
       <CardHeader>
-        <CardTitle>登录</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
-          请输入您的邮箱和密码登录
+          请输入您的邮箱和密码进行{title}
         </CardDescription>
-        <CardAction>
-          <Button variant="link">注册</Button>
-        </CardAction>
+       
       </CardHeader>
       <CardContent>
         <form>
@@ -31,7 +33,7 @@ export default function LoginCard() {
               <Input
                 id="email"
                 type="email"
-                placeholder="m@example.com"
+                placeholder="请输入您的邮箱"
                 required
               />
             </div>
@@ -52,8 +54,24 @@ export default function LoginCard() {
       </CardContent>
       <CardFooter className="flex-col gap-2">
         <Button type="submit" className="w-full bg-dark text-white hover:bg-primary/40">
-          登录
+          {isLogin ? "登录" : "注册"}
         </Button>
+         {isLogin && (
+          <CardAction>
+          还没账号？去 <Button variant="link" onClick={() => {
+            setIsLogin(false)
+            setTitle("注册")
+            }}>注册</Button>
+        </CardAction>
+         )}
+        {!isLogin && (
+          <CardAction>
+          已有账号？去 <Button variant="link" onClick={() => {
+            setIsLogin(true)
+            setTitle("登录")
+            }}>登录</Button>
+        </CardAction>
+        )}
       </CardFooter>
     </Card>
   )
