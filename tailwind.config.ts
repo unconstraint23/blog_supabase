@@ -29,6 +29,10 @@ export default {
   			ring: 'var(--ring)',
   			'ring-50': 'hsl(var(--ring) / 0.5)'
   		},
+		muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+			},
   		keyframes: {
   			'accordion-down': {
   				from: {
