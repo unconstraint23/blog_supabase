@@ -3,7 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Nav from "@/custom-components/Nav";
 import CommonProvider from "@/custom-components/CommonProvider";
-
+import { Toaster } from "@/components/ui/sonner";
+import FullScreenLoader from "@/custom-components/FullScreenLoader";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -38,6 +39,8 @@ export default function RootLayout({
                     © {new Date().getFullYear()} next学习. 保留所有权利.
                   </div>
                 </footer>
+                <FullScreenLoader />
+              <Toaster richColors position="top-center" />
               </div>
         </body>
       </CommonProvider>

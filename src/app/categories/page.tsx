@@ -1,33 +1,26 @@
-"use client"
 
-import { Input } from "@/components/ui/input"
-import { CircleX } from "lucide-react"
+import TagManage from "@/custom-components/TagManage"
+import { createClient } from "@/lib/supabase/server"
+import { Category } from "@/types"
 
-export default function page() {
+export async function getCategories() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.from("tags").select("tag_id::text, tag_name").filter("is_delete", "eq", false).order("tag_id", { ascending: true })
+
+  if (error) {
+    console.error("Error fetching categories:", error)
+    return []
+  }
+  
+  return data as Category[]
+}
+
+export default async function page() {
+  const categories = await getCategories()
   return (
-    <div
-    className='container mx-auto px-4 mt-4 mb-4'
-    >
-       
-            <div className='flex justify-between items-center'>
-                <div className='font-bold text-1xl'>
-                    点击下方标签即可在右侧输入框修改按回车确认
-                </div>
-                <Input className="w-2/12" placeholder='请输入分类名称' />
-            </div>
-            <div className='mt-4 flex flex-wrap gap-4' >
-               
-                    <div className='flex items-center justify-between bg-gray-100 p-2 rounded-md'>
-                        <span>前端</span>
-                        <CircleX className="ml-3 cursor-pointer"  size={16} />
-                    </div>
-                    <div className='flex items-center justify-between bg-gray-100 p-2 rounded-md'>
-                        <span>后端</span>
-                        <CircleX className="ml-3 cursor-pointer" size={16} />
-                    </div>
-          
-       
-             </div>
-    </div>
+    <>
+      <TagManage tagList={categories} />
+    </>
   )
 }

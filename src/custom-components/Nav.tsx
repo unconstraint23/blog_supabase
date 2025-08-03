@@ -4,9 +4,14 @@ import Link from "next/link"
 import Search from "./Search"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { useCommonContext } from "./CommonProvider"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { AvatarImage } from "@radix-ui/react-avatar"
 
 export default function Nav() {
   const router = useRouter()
+  const { userInfo, signOut } = useCommonContext()
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 py-4">
@@ -21,12 +26,34 @@ export default function Nav() {
           </div>
           <div className="w-2/6 flex justify-between items-center">
             <Search className="w-3/4" />
+             {userInfo ? (
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage
+                      src={userInfo.user_metadata?.avatar_url || "/placeholder.svg?height=32&width=32"}
+                      alt={userInfo.email || ""}
+                    />
+                    <AvatarFallback className="text-white">{userInfo.email ? userInfo.email.charAt(0).toUpperCase() : "U"}</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-slate-400" align="end">
+                <DropdownMenuLabel>{userInfo.email || "用户"}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="cursor-pointer" onClick={() => signOut()}>退出登录</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
             <Button
               className="w-20 bg-primary text-white hover:bg-primary/20"
               onClick={() => router.push('/login')}
             >
               登录
             </Button>
+          )}
+            
           </div>
 
         </div>

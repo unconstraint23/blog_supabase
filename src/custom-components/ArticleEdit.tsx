@@ -4,15 +4,21 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
-import { useState } from 'react'
+import { use, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from "zod"
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import RichEditor from './RichEditor'
+import { Category } from '@/types'
+import { useAppToast } from '@/hooks/useAppToast'
+import { useLoadingStore } from '@/utils/useLoadingStore'
+import { createClient } from '@/lib/supabase/client'
+import { useCommonContext } from '@/custom-components/CommonProvider'
 interface IArticleEditProps {
   articleId?: string;
+  tagList?: Category[];
   articleInfo?: {
     title: string;
     description: string;
@@ -22,15 +28,18 @@ interface IArticleEditProps {
 }
 type ArticleInfo = IArticleEditProps['articleInfo'];
 export default function ArticleEdit(props: IArticleEditProps) {
-  const { articleId, articleInfo } = props;
-
-
+  const { articleId, articleInfo, tagList } = props;
+  const toast = useAppToast()
+  const { show, hide } = useLoadingStore()
+  const { userInfo } = useCommonContext()
+  const supabase = createClient()
+ const richRef = useRef<any>(null)
 
   const formSchema = z.object({
     title: z.string().min(1, "标题不能为空").max(50),
     description: z.string().min(1, "描述不能为空").max(200),
     content: z.string().min(1, "内容不能为空"),
-    tags: z.array(z.string()).max(3, "最多只能选择3个标签").optional(),
+    tags: z.array(z.string()),
   })
   const [formData, setFormData] = useState<ArticleInfo>({
     title: '',
@@ -42,10 +51,56 @@ export default function ArticleEdit(props: IArticleEditProps) {
     defaultValues: formData,
     resolver: zodResolver(formSchema),
   });
-  const handleSubmit = (data: ArticleInfo) => {
-    console.log(data)
-    setFormData(data);
+  const add = async (data: any) => {
+    try {
+      show()
+
+      // 新建文章逻辑
+      const { error } = await supabase
+        .from('articles')
+        .insert({ ...data, author_id: userInfo?.id })
+      hide()
+      if(error) {
+        toast.error("文章发布失败，请稍后重试")
+        throw error
+      }
+      toast.success("文章发布成功")
+      useData.reset()
+      richRef.current?.clear()
+    } catch (error) {
+      hide()
+      toast.error("操作失败，请稍后重试")
+    }
   }
+  const update = async (data: any) => {
+    try {
+      show()
+      // 编辑文章逻辑
+      const { error } = await supabase
+        .from('articles')
+        .update({ ...data, author_id: userInfo?.id })
+        .match({ id: articleId })
+      hide()
+      toast.success("文章更新成功")
+      
+    } catch (error) {
+      hide()
+      toast.error("操作失败，请稍后重试")
+    }
+
+  }
+  const handleSubmit = async (data: ArticleInfo) => {
+    console.log(data, "提交的数据");
+    setFormData(data);
+
+    if (articleId) {
+       update(data)
+    } else {
+      add(data)
+    }
+
+  }
+
   return (
     <div className="h-svh">
       <Card className="container mx-auto px-4 mt-4 mb-4">
@@ -66,7 +121,7 @@ export default function ArticleEdit(props: IArticleEditProps) {
                     <FormControl>
                       <Input placeholder='请输入' {...field} />
                     </FormControl>
-                     <FormMessage className='text-red-500' />
+                    <FormMessage className='text-red-500' />
                   </FormItem>
                 )}
               />
@@ -84,9 +139,9 @@ export default function ArticleEdit(props: IArticleEditProps) {
                         rows={3}
                         className="h-24"
                       />
-                      
+
                     </FormControl>
-                     <FormMessage className='text-red-500' />
+                    <FormMessage className='text-red-500' />
                   </FormItem>
                 )}
               />
@@ -100,57 +155,58 @@ export default function ArticleEdit(props: IArticleEditProps) {
                   <FormItem>
                     <FormLabel>内容</FormLabel>
                     <FormControl>
-                      <RichEditor content={field.value} onChange={(content) => field.onChange(content)} />
+                      <RichEditor content={field.value} onChange={(content) => field.onChange(content)} ref={richRef} />
                     </FormControl>
-                     <FormMessage className='text-red-500' />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={useData.control}
-                name="tags"
-                render={() => (
-                  <FormItem>
-                    <FormLabel>标签（选填）</FormLabel>
-                    <div className="flex flex-wrap gap-4">
-                      {(['前端', '后端', '数据库', '网络', '安全', '架构', '项目管理', '其他']).map((tag) => (
-                        <FormField
-                          key={tag}
-                          control={useData.control}
-                          name="tags"
-                          render={({ field }) => {
-                            return (
-                              <FormItem className="flex items-center space-x-2">
-                                <FormControl>
-                                  <Checkbox
-                                  className='h-4 w-4'
-                                    checked={field.value?.includes(tag)}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        field.onChange([...(field?.value || []), tag])
-                                      } else {
-                                        field.onChange((field?.value || []).filter((val) => val !== tag))
-                                      }
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">{tag}</FormLabel>
-                              </FormItem>
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
                     <FormMessage className='text-red-500' />
                   </FormItem>
                 )}
               />
+              <FormField
+                  control={useData.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>标签（选填）</FormLabel>
+                      <div className="flex flex-wrap gap-4">
+                        {tagList?.map((tag) => {
+                          const checked = field.value?.includes(tag.tag_id)
+
+                          return (
+                            <div key={tag.tag_id} className="flex items-center space-x-2">
+                              <FormControl>
+                                <Checkbox
+                                  className="h-4 w-4"
+                                  checked={checked}
+                                  onCheckedChange={(isChecked) => {
+                                  
+                                    let newValue = field.value || []
+                                    if (isChecked === true) {
+                                      newValue = [...newValue, tag.tag_id]
+                                    } else {
+                                      newValue = newValue.filter((val) => val !== tag.tag_id)
+                                    }
+                                
+                                    field.onChange(newValue) 
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal">{tag.tag_name}</FormLabel>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <FormMessage className="text-red-500" />
+                    </FormItem>
+                  )}
+                />
+
+
               <div className='w-full flex justify-center mt-4'>
                 <Button type='submit' className='w-2/12 mx-auto bg-dark text-white hover:bg-primary/40'>
-                {articleId ? "保存" : "发布"}
-              </Button>
+                  {articleId ? "保存修改" : "发布"}
+                </Button>
               </div>
-              
+
             </form>
 
           </Form>

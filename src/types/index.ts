@@ -23,10 +23,8 @@ export interface User {
 }
 
 export interface Category {
-  id: string
-  name: string
-  slug: string
-  description: string | null
+  tag_id: string
+  tag_name: string
 }
 
 export interface Comment {
