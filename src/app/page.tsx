@@ -17,22 +17,22 @@ async function getArtciles() {
   const supabase = await createClient()
   try {
     const { data, error } = await supabase
-      .from('articles')
-      .select(`
-      article_id, 
-      title, 
-      description,
-       content, 
-       created_at, 
-       update_at, 
-       tags, 
-       author:author_id (
-        id, 
-        email, 
-        username
-       )
-       `)
-      .order('created_at', { ascending: false })
+  .from('articles')
+  .select(`
+    article_id, 
+    title, 
+    description,
+    content, 
+    created_at, 
+    update_at, 
+    tags, 
+    author_id,
+    author:user_profiles (
+      user_id, 
+      email
+    )
+  `)
+  .order('created_at', { ascending: false });
     if (error) {
       console.log("Error fetching articles:", error)
       throw error
