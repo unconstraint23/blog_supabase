@@ -1,64 +1,64 @@
 
+"use client"
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 
 import { Post } from "@/types"
+import { formatDate } from "@/utils/utils"
+import { useRouter } from "next/navigation"
 
 export function ArticleList({articles}: {articles: Post[]}) {
+    const router = useRouter()
   return (
     <Accordion
-      type="single"
-      collapsible
+      type="multiple"
+     
       className="w-full"
-      defaultValue="item-1"
+      defaultValue={articles.map(item => item.article_id)}
     >
-      <AccordionItem value="item-1">
-        <AccordionTrigger>Product Information</AccordionTrigger>
+      { articles.map(item => (
+        <AccordionItem value={item.article_id} key={item.article_id}>
+        <AccordionTrigger className="font-bold text-lg">{item.title}</AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-balance">
           <p>
-            Our flagship product combines cutting-edge technology with sleek
-            design. Built with premium materials, it offers unparalleled
-            performance and reliability.
+            {item.description}
           </p>
           <p>
-            Key features include advanced processing capabilities, and an
-            intuitive user interface designed for both beginners and experts.
+           内容分类： {item?.tags?.map(tag => (
+            <span key={tag} className="bg-primary/20 rounded-md px-2 py-1 mx-2 text-primary">
+              {tag}
+            </span>
+           ))}
           </p>
+          <p>
+            作者：{item?.author?.email.split("@")[0]}
+          </p>
+          <p>
+            发布时间：{formatDate(item?.created_at)}
+          </p>
+          <div className="flex justify-end">
+            <Button 
+            className="w-20 bg-primary text-white hover:bg-primary/20 mx-2" 
+            onClick={() => {
+              router.push(`/articleDetail/${item.article_id}`)
+            }}
+            >
+              详情
+            </Button>
+            <Button className="w-20 bg-primary text-white hover:bg-primary/20">
+              编辑
+            </Button>
+          </div>
         </AccordionContent>
       </AccordionItem>
-      <AccordionItem value="item-2">
-        <AccordionTrigger>Shipping Details</AccordionTrigger>
-        <AccordionContent className="flex flex-col gap-4 text-balance">
-          <p>
-            We offer worldwide shipping through trusted courier partners.
-            Standard delivery takes 3-5 business days, while express shipping
-            ensures delivery within 1-2 business days.
-          </p>
-          <p>
-            All orders are carefully packaged and fully insured. Track your
-            shipment in real-time through our dedicated tracking portal.
-          </p>
-        </AccordionContent>
-      </AccordionItem>
-      <AccordionItem value="item-3">
-        <AccordionTrigger>Return Policy</AccordionTrigger>
-        <AccordionContent className="flex flex-col gap-4 text-balance">
-          <p>
-            We stand behind our products with a comprehensive 30-day return
-            policy. If you&apos;re not completely satisfied, simply return the
-            item in its original condition.
-          </p>
-          <p>
-            Our hassle-free return process includes free return shipping and
-            full refunds processed within 48 hours of receiving the returned
-            item.
-          </p>
-        </AccordionContent>
-      </AccordionItem>
+      ))
+        }
     </Accordion>
   )
 }

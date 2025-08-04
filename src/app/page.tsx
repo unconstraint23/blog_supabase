@@ -12,17 +12,17 @@ import { ArticleList } from "@/custom-components/ArticleList";
 import { useAppToast } from "@/hooks/useAppToast";
 import { createClient } from "@/lib/supabase/server";
 import { useLoadingStore } from "@/utils/useLoadingStore";
+import Link from "next/link"
 
 async function getArtciles() {
   const supabase = await createClient()
   try {
     const { data, error } = await supabase
-  .from('articles')
+  .from('articles_with_tag_names')
   .select(`
     article_id, 
     title, 
     description,
-    content, 
     created_at, 
     update_at, 
     tags, 
@@ -47,8 +47,8 @@ async function getArtciles() {
 export default async function Home() {
 
     const articles = await getArtciles()
-    console.log("articles", articles)
-    // hide()
+   
+  
 
 
   return (
@@ -65,9 +65,13 @@ export default async function Home() {
 
           </CardDescription>
           <CardAction>
-            <Button className="w-20 bg-primary text-white hover:bg-primary/20">
-              写博客
-            </Button>
+           <Link href="/create">
+           <Button className="w-20 bg-primary text-white hover:bg-primary/20">
+              创建新文章
+           </Button>
+            
+            
+          </Link>
           </CardAction>
         </CardHeader>
         <CardContent>
@@ -75,7 +79,7 @@ export default async function Home() {
             文章列表
           </CardTitle>
           <CardContent>
-            <ArticleList articles={[]} />
+            <ArticleList articles={articles as any} />
           </CardContent>
         </CardContent>
         <CardFooter>

@@ -1,16 +1,15 @@
 export interface Post {
-  id: string
+  article_id: string
   title: string
-  slug: string
-  content: string
-  excerpt: string | null
+  description: string
   author_id: string
-  published: boolean
-  is_public: boolean
   created_at: string
   updated_at: string
-  author?: User
-  categories?: Category[]
+  author?: {
+    email: string
+    user_id: string
+  }
+  tags?: string[]
 }
 
 export interface User {

@@ -4,9 +4,9 @@ import { NextRequest, NextResponse } from 'next/server'
 const PUBLIC_PATHS = ['/login']
 
 export async function middleware(request: NextRequest) {
-    console.log('Middleware triggered for:', request)
+    // console.log('Middleware triggered for:', request)
   const { pathname } = request.nextUrl
-  const token = request.cookies.get('Idea-4058f04f')?.value
+  const token = request.cookies.get('sb-mjfzvdyjljmxssbnqzcs-auth-token')?.value
 
   const isPublic = PUBLIC_PATHS.some(path => pathname.startsWith(path))
 
