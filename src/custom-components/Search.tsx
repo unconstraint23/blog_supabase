@@ -1,12 +1,27 @@
 "use client"
 
 import { Input } from '@/components/ui/input'
-import React from 'react'
+import React, { useState } from 'react'
+interface SearchProps {
+  className: string
+  onChange?: (...arg: any) => any
+  onSearch?: (...arg: any) => any
+}
 
-export default function Search(props: { className: string }) {
+export default function Search(props: SearchProps) {
 
- 
-   
-return <Input className={props.className} type="text" placeholder="搜索" />
+ const [value, setValue] = useState('')
+   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+         if (e.key === "Enter") {
+            props.onSearch?.(value)
+        }
+   }
+return <Input 
+    onChange={(e) => {
+  setValue(e.target.value)
+  props.onChange?.(e.target.value)
+}}
+onKeyDown={handleSearch}
+className={props.className} value={value} type="text" placeholder="请输入标题按回车搜索" />
 
 }

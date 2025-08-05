@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit'
 import Heading from '@tiptap/extension-heading'
 import { Button } from '@/components/ui/button';
 import { Bold, Heading1, Heading2, Heading3, Italic, List, ListOrdered } from 'lucide-react';
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle } from 'react';
 
 interface IRichEditorProps {
   content?: string;
@@ -37,11 +37,18 @@ export default forwardRef(function RichEditor({ content, onChange }: IRichEditor
       onChange(editor.getHTML())
     },
   })
+  const setEditContent = (content: string) => {
+    queueMicrotask(() => {
+      debugger
+      editor?.commands.setContent(content)
+    })
+  }
   const handleClear = () => {
     editor?.commands.clearContent()
   }
   useImperativeHandle(ref, () => ({
     clear: handleClear,
+    setContent: setEditContent
   }));
   return (
     <div className="border rounded-md overflow-hidden">

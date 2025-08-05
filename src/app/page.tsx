@@ -52,7 +52,7 @@ export default async function Home() {
 
 
   return (
-    <div className="h-svh">
+    <div className="h-full">
       <Card className="container mx-auto px-4 mt-4 mb-4">
         <CardHeader>
           <CardTitle>
@@ -65,7 +65,7 @@ export default async function Home() {
 
           </CardDescription>
           <CardAction>
-           <Link href="/create">
+           <Link href="/edit">
            <Button className="w-20 bg-primary text-white hover:bg-primary/20">
               创建新文章
            </Button>
