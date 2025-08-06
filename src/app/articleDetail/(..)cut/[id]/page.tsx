@@ -37,7 +37,7 @@ export default function MemberModal({ params }: { params: Promise<{ id: string }
         }}
         onClick={e => e.stopPropagation()}
       >
-        <h3>👤 用作复习路由拦截，创建新文章请点击头部的新建按钮</h3>
+        <h3>👤 用作复习路由拦截</h3>
         <p>当前 ID：{id}</p>
         <button onClick={() => router.back()}>关闭</button>
       </div>

@@ -138,7 +138,7 @@ export default function ArticleEdit(props: IArticleEditProps) {
   }
 
   return (
-    <div className="h-svh">
+    <div className="h-full">
       <Card className="container mx-auto px-4 mt-4 mb-4">
         <CardHeader>
           <CardTitle className='font-bold text-2xl'>

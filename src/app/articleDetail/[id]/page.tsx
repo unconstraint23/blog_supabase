@@ -1,3 +1,4 @@
+import { CommentsSection } from "@/custom-components/CommentsSection";
 import { EnhancedContent } from "@/custom-components/EnhancedContent";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/utils/utils";
@@ -44,6 +45,7 @@ export default async function page({ params }: { params: { id: string } }) {
   return (
     <div className="container mx-auto px-4 py-8">
       <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
+
         <ArrowLeft className="mr-2 h-4 w-4" />
         返回首页
       </Link>
@@ -59,7 +61,8 @@ export default async function page({ params }: { params: { id: string } }) {
 
         <EnhancedContent content={post.content} />
 
-        {/* <CommentsSection postId={post.id} /> */}
+        <CommentsSection postId={post.article_id} />
+
       </article>
     </div>
   )
