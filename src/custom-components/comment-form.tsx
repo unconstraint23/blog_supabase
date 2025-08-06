@@ -8,26 +8,38 @@ import { Textarea } from "@/components/ui/textarea"
 
 
 import type { Comment } from "@/types"
+import { useCommonContext } from "./CommonProvider"
 
 interface CommentFormProps {
   postId: string
+  userName: string
   onCommentAdded: (comment: Comment) => void
 }
 
-export function CommentForm({ postId, onCommentAdded }: CommentFormProps) {
+export function CommentForm({ postId, userName, onCommentAdded }: CommentFormProps) {
   const [content, setContent] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const { userInfo } = useCommonContext()
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-   
-
+    if (isSubmitting) {
+      return
+    }
  
-
     setIsSubmitting(true)
 
-   
+    const comment: Comment = {
+      article_id: postId,
+      user_id: userInfo?.id as any,
+      user_name: userName,
+      content,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+    onCommentAdded(comment)
+    setContent("")
+    setIsSubmitting(false)
   }
 
   return (

@@ -5,27 +5,87 @@ import { useState, useEffect } from "react"
 import type { Comment } from "@/types"
 import { Separator } from "@/components/ui/separator"
 import { CommentForm } from "./comment-form"
+import { CommentItem } from "./comment-item"
+import { createClient } from "@/lib/supabase/client"
+import { useAppToast } from "@/hooks/useAppToast"
+import { useLoadingStore } from "@/utils/useLoadingStore"
 
 interface CommentsSectionProps {
   postId: string
+  userName: string
 }
 
-export function CommentsSection({ postId }: CommentsSectionProps) {
+export function CommentsSection({ postId ,userName }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  // const supabase = useCallback(async () => await createClient(), [])
+
+  const toast = useAppToast()
+  const { show, hide } = useLoadingStore()
+  
+  const getComments = async () => {
+    try {
+      const supabase = await createClient()
+      show()
+
+    const { data, error } = await supabase
+      .from('comment')
+      .select('*')
+      .eq('article_id', postId)
+      .order('created_at', { ascending: false })
+    if (error) {
+      console.log('Error fetching comments:', error)
+      throw error
+    }
+    console.log(data, "comment data")
+    setComments(data as Comment[])
+    } catch (error) {
+      toast.error('获取评论失败')
+      console.log('Error fetching comments:', error)
+      throw error
+    } finally {
+      hide()
+      setIsLoading(false)
+    }
+
+  }
+  useEffect(() => {
+    getComments()
+  }, [postId])
  
 
- 
+  const handleCommentAdded = async (newComment: Comment) => {
+    try {
+      const supabase = await createClient()
 
-  const handleCommentAdded = (newComment: Comment) => {
-    setComments([newComment, ...comments])
+      show()
+
+      const { data, error } = await supabase
+      .from('comment')
+      .insert([newComment])
+    if (error) {
+      console.log('Error adding comment:', error)
+      throw error
+    }
+    toast.success('评论成功')
+    getComments()
+    } catch (error) {
+      toast.error('评论失败')
+      console.log('Error adding comment:', error)
+      throw error
+    } finally {
+      hide()
+
+    }
+    
   }
 
   return (
     <div className="mt-12">
       <h2 className="text-2xl font-bold mb-6">评论</h2>
 
-      <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
+      <CommentForm postId={postId} userName={userName} onCommentAdded={handleCommentAdded} />
+
 
       <Separator className="my-6" />
 

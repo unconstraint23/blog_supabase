@@ -42,6 +42,8 @@ async function getArtcieDetail(id: string) {
 export default async function page({ params }: { params: { id: string } }) {
     
     const post: any = await getArtcieDetail(params.id)
+    console.log(post, "article detail")
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Link href="/" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-6">
@@ -61,7 +63,8 @@ export default async function page({ params }: { params: { id: string } }) {
 
         <EnhancedContent content={post.content} />
 
-        <CommentsSection postId={post.article_id} />
+        <CommentsSection postId={post.article_id} userName={post.author.email.split("@")[0]} />
+
 
       </article>
     </div>
