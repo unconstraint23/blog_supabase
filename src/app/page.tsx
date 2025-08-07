@@ -9,13 +9,31 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { ArticleList } from "@/custom-components/ArticleList";
-import { useAppToast } from "@/hooks/useAppToast";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { useLoadingStore } from "@/utils/useLoadingStore";
+import { generateBaseMetadata } from "@/utils/seo-metadata";
 import Link from "next/link"
+import { getCategories } from "./categories/page";
 
-async function getArtciles() {
-  const supabase = await createClient()
+export const revalidate = 60
+
+export async function generateMetadata() {
+  try {
+    const tagList = await getCategories()
+    return generateBaseMetadata({
+      title: '博客文章列表 - 我的博客',
+      description: '查看所有发布的博客文章，涵盖技术、生活、学习等内容。',
+      url: 'https://blog-supabase.vercel.app',
+      tag: tagList.map((tag) => tag.tag_name).join(',')
+    })
+  } catch (error) {
+    
+  }
+  
+}
+
+ export async function getArtciles() {
+  const supabase = supabaseAdmin
   try {
     const { data, error } = await supabase
   .from('articles_with_tag_names')

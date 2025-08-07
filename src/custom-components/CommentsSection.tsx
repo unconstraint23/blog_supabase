@@ -9,17 +9,17 @@ import { CommentItem } from "./comment-item"
 import { createClient } from "@/lib/supabase/client"
 import { useAppToast } from "@/hooks/useAppToast"
 import { useLoadingStore } from "@/utils/useLoadingStore"
+import { useCommonContext } from "./CommonProvider"
 
 interface CommentsSectionProps {
   postId: string
-  userName: string
 }
 
-export function CommentsSection({ postId ,userName }: CommentsSectionProps) {
+export function CommentsSection({ postId  }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([])
   const [isLoading, setIsLoading] = useState(true)
   // const supabase = useCallback(async () => await createClient(), [])
-
+  const { userInfo } = useCommonContext()
   const toast = useAppToast()
   const { show, hide } = useLoadingStore()
   
@@ -84,7 +84,7 @@ export function CommentsSection({ postId ,userName }: CommentsSectionProps) {
     <div className="mt-12">
       <h2 className="text-2xl font-bold mb-6">评论</h2>
 
-      <CommentForm postId={postId} userName={userName} onCommentAdded={handleCommentAdded} />
+      <CommentForm postId={postId} userName={userInfo?.email.split("@")[0]} onCommentAdded={handleCommentAdded} />
 
 
       <Separator className="my-6" />
@@ -96,7 +96,7 @@ export function CommentsSection({ postId ,userName }: CommentsSectionProps) {
       ) : comments.length > 0 ? (
         <div className="space-y-1">
           {comments.map((comment) => (
-            <div key={comment.id}>
+            <div key={comment.comment_id}>
               <CommentItem comment={comment} />
               <Separator />
             </div>

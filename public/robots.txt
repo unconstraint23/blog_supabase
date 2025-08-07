@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+# 生产环境地址
+Sitemap: https://blog-supabase.vercel.app  

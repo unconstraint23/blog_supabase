@@ -1,11 +1,50 @@
+import { getArtciles } from "@/app/page";
 import { CommentsSection } from "@/custom-components/CommentsSection";
 import { EnhancedContent } from "@/custom-components/EnhancedContent";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/client";
+import { generateBaseMetadata } from "@/utils/seo-metadata";
 import { formatDate } from "@/utils/utils";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
+export async function generateMetadata({ params }: { params: { id: string } }) {
+  const { id } = await params
+  const article = await getArtcieDetail(id)
 
+  return generateBaseMetadata({
+    title: `${article?.title} - 我的博客`,
+    description: article?.description || '精彩博客内容',
+    url: `https://yourdomain.com/blog/${id}`,
+    tag: article?.tags?.join(','),
+    alternates: {
+      canonical: `https://blog-supabase.vercel.app/articleDetail/${id}`, // 显式指定 canonical 地址
+    },
+  })
+}
+
+export async function generateStaticParams() {
+  const supabase = supabaseAdmin
+  try {
+    const {data, error} = await supabase
+  .from('articles_with_tag_names')
+  .select('article_id')
+    if(error) {
+      console.log("Error fetching articles:", error)
+      throw error
+    }
+    console.log(data, "data")
+
+  return data.map((post) => ({
+    id: post.article_id.toString(),
+  }));
+  } catch (error) {
+    
+  }
+  
+}
+
+export const revalidate = 60
 
 async function getArtcieDetail(id: string) {
     const supabase = await createClient()
@@ -40,8 +79,9 @@ async function getArtcieDetail(id: string) {
 }
 
 export default async function page({ params }: { params: { id: string } }) {
-    
-    const post: any = await getArtcieDetail(params.id)
+    const { id } = await params
+
+    const post: any = await getArtcieDetail(id)
     console.log(post, "article detail")
 
   return (
@@ -54,16 +94,23 @@ export default async function page({ params }: { params: { id: string } }) {
 
       <article className="max-w-3xl mx-auto">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+          <h1 className="text-3xl font-bold mb-4">{post?.title}</h1>
           <div className="text-muted-foreground">
-           发布时间： {formatDate(post.created_at)} · {post.author.email.split("@")[0]}
+           发布时间： {formatDate(post?.created_at)} · {post?.author?.email.split("@")[0]}
+
            
           </div>
         </header>
 
         <EnhancedContent content={post.content} />
-
-        <CommentsSection postId={post.article_id} userName={post.author.email.split("@")[0]} />
+ <p>
+           内容分类： {post?.tags.map((tag: string) => (
+            <span key={tag} className="bg-primary/20 rounded-md px-2 py-1 mx-2 text-primary">
+              {tag}
+            </span>
+           ))}
+          </p>
+        <CommentsSection postId={post.article_id} />
 
 
       </article>
