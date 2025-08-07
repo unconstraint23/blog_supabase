@@ -47,6 +47,10 @@ export async function generateStaticParams() {
 export const revalidate = 60
 
 async function getArtcieDetail(id: string) {
+  if(!id) {
+    return null
+  }
+
     const supabase = await createClient()
     try {
       const {data: post, error} = await supabase
@@ -102,7 +106,7 @@ export default async function page({ params }: { params: { id: string } }) {
           </div>
         </header>
 
-        <EnhancedContent content={post.content} />
+        <EnhancedContent content={post?.content ?? ""} />
  <p>
            内容分类： {post?.tags.map((tag: string) => (
             <span key={tag} className="bg-primary/20 rounded-md px-2 py-1 mx-2 text-primary">
@@ -110,7 +114,8 @@ export default async function page({ params }: { params: { id: string } }) {
             </span>
            ))}
           </p>
-        <CommentsSection postId={post.article_id} />
+        <CommentsSection postId={post?.article_id} />
+
 
 
       </article>
