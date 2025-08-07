@@ -1,4 +1,4 @@
-import { getArtciles } from "@/app/page";
+
 import { CommentsSection } from "@/custom-components/CommentsSection";
 import { EnhancedContent } from "@/custom-components/EnhancedContent";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -8,9 +8,11 @@ import { formatDate } from "@/utils/utils";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const article = await getArtcieDetail(id)
+  console.log(id, "generateMetadata id")
+
+  const article = await getArticleDetail(id)
 
   return generateBaseMetadata({
     title: `${article?.title} - 我的博客`,
@@ -46,7 +48,7 @@ export async function generateStaticParams() {
 
 export const revalidate = 60
 
-async function getArtcieDetail(id: string) {
+async function getArticleDetail(id: string) {
   if(!id) {
     return null
   }
@@ -69,8 +71,9 @@ async function getArtcieDetail(id: string) {
       email
     )
   `)
-    .eq("article_id::bigint", id)
-    .single()  
+    .eq("article_id", Number.isNaN(Number(id)) ? 0 : Number(id))
+
+    .maybeSingle()  
     if (error) {
       console.log("Error fetching article:", error)
       throw error
@@ -85,7 +88,7 @@ async function getArtcieDetail(id: string) {
 export default async function page({ params }: { params: { id: string } }) {
     const { id } = await params
 
-    const post: any = await getArtcieDetail(id)
+    const post: any = await getArticleDetail(id)
     console.log(post, "article detail")
 
   return (
