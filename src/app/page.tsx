@@ -33,7 +33,7 @@ export async function generateMetadata() {
 }
 
  export async function getArtciles() {
-  const supabase = supabaseAdmin
+  const supabase = await createClient()
   try {
     const { data, error } = await supabase
   .from('articles_with_tag_names')

@@ -7,26 +7,29 @@ import { generateBaseMetadata } from "@/utils/seo-metadata";
 import { formatDate } from "@/utils/utils";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import type { Metadata, ResolvingMetadata } from 'next'
+// export async function generateMetadata(
+//   { params }: { params: { id: string } },
+//   parent: ResolvingMetadata
+// ): Promise<Metadata> {
+//   const { id } = await params
+//   console.log(id, "generateMetadata id")
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
-  console.log(id, "generateMetadata id")
+//   // const article = await getArticleDetail(id)
 
-  const article = await getArticleDetail(id)
-
-  return generateBaseMetadata({
-    title: `${article?.title} - 我的博客`,
-    description: article?.description || '精彩博客内容',
-    url: `https://yourdomain.com/blog/${id}`,
-    tag: article?.tags?.join(','),
-    alternates: {
-      canonical: `https://blog-supabase.vercel.app/articleDetail/${id}`, // 显式指定 canonical 地址
-    },
-  })
-}
+//   return generateBaseMetadata({
+//     title: `我的博客`,
+//     description: '精彩博客内容',
+//     url: `https://yourdomain.com/blog/${id}`,
+//     // tag: article?.tags?.join(','),
+//     alternates: {
+//       canonical: `https://blog-supabase.vercel.app/articleDetail/${id}`, // 显式指定 canonical 地址
+//     },
+//   })
+// }
 
 export async function generateStaticParams() {
-  const supabase = supabaseAdmin
+  const supabase = await createClient()
   try {
     const {data, error} = await supabase
   .from('articles_with_tag_names')
@@ -85,7 +88,7 @@ async function getArticleDetail(id: string) {
     
 }
 
-export default async function page({ params }: { params: { id: string } }) {
+export default async function page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
 
     const post: any = await getArticleDetail(id)
