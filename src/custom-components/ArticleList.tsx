@@ -42,7 +42,8 @@ export function ArticleList({articles}: {articles: Post[]}) {
             console.log("Error fetching articles:", error)
             throw error
           }
-          setList(data as any) 
+          setList(data as unknown as Post[]) 
+
         } catch (error) {
       
         }
