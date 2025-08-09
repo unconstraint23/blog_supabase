@@ -1,3 +1,40 @@
+### 已完成功能：
+
+*  文章列表页（不含含分页）
+*  文章详情页（丐版）
+*  文章创建页面（丐版）
+*  基础 SEO 优化（丐版）
+*  实现 ISR 增量静态再生（丐版）
+
+
+*  文章编辑/删除功能（丐版）
+*  标签分类系统（丐版）
+*  评论功能集成（丐版）
+*  部署到 Vercel
+
+注册的邮箱确认环节已关闭，已有的注册账号： user@163.com admin@163.com  zhangsan@163.com lisi@163.com  密码均为123456
+
+### 注意事项
+
+如果需要运行这套代码，需要在数据库执行以下语句：
+
+DROP VIEW IF EXISTS articles_with_tag_names;
+create view articles_with_tag_names as
+select 
+  a.article_id,
+  a.title,
+  a.description,
+  a.content,
+  a.created_at,
+  a.update_at,
+  a.author_id,
+  (
+    select array_agg(t.tag_name order by t.tag_name)
+    from unnest(a.tags) as u(tag_id)
+    join tags t on t.tag_id = u.tag_id::bigint
+  ) as tags
+from articles a;
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
