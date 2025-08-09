@@ -8,6 +8,27 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import type { Metadata, ResolvingMetadata } from 'next'
 
+
+export async function generateMetadata(
+  { params }: { params: { id: string } },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const { id } = await params
+  console.log(id, "generateMetadata id")
+
+  const article = await getArticleDetail(id)
+
+  return generateBaseMetadata({
+    title: `${article?.title}`,
+    description: `${article?.description}`,
+    url: `https://blog-supabase.vercel.app/articleDetail/${id}`,
+    tag: article?.tags?.join(','),
+    alternates: {
+      canonical: `https://blog-supabase.vercel.app/articleDetail/${id}`, // 显式指定 canonical 地址
+    },
+  })
+}
+
 export async function generateStaticParams() {
   const supabase = await createClient()
   try {
